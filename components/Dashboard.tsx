@@ -2,15 +2,17 @@ import React, { FC, useState } from 'react'
 import PriceChart from './PriceChart'
 import { CandleChartInterval, TradingPairSymbol } from '@/types'
 import { useCandleData } from '@/hooks/useCandleData'
+import VolumeChart from './VolumeChart'
 
 const Dashboard: FC = () => {
   const [symbol, setSymbol] = useState<TradingPairSymbol>(TradingPairSymbol.BTCUSDT)
   const [timeframe, setTimeframe] = useState<CandleChartInterval>(CandleChartInterval.ONE_DAY)
 
-  const { priceChartData } = useCandleData(symbol, timeframe)
+  const { priceChartData, volumeData } = useCandleData(symbol, timeframe)
 
   /**
    * @todo
+   * 1. Add loading spinner
    * 2. Add more graphs, use this component to pass them symbol, timeframe
    * 3. Add nice transitions/animations/interactions
    */
@@ -30,6 +32,7 @@ const Dashboard: FC = () => {
         </select>
       </fieldset>
       <PriceChart data={priceChartData} />
+      <VolumeChart data={volumeData} symbol={symbol} />
     </section>
   )
 }

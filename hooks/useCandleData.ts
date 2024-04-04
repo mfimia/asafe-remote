@@ -7,7 +7,12 @@ export interface IPriceChartData {
   timestamp: Date;
 }
 
-export const useCandleData = (symbol: TradingPairSymbol, timeframe: CandleChartInterval): { priceChartData: IPriceChartData[] } => {
+export interface IVolumeData {
+  volume: number
+  timestamp: Date
+}
+
+export const useCandleData = (symbol: TradingPairSymbol, timeframe: CandleChartInterval): { priceChartData: IPriceChartData[], volumeData: IVolumeData[] } => {
   const [candleData, setCandleData] = useState<OHLCV[]>([])
 
   useEffect(() => {
@@ -22,6 +27,7 @@ export const useCandleData = (symbol: TradingPairSymbol, timeframe: CandleChartI
   }, [symbol, timeframe]);
 
   return {
-    priceChartData: candleData.map(candle => ({ price: candle[4]!, timestamp: new Date(candle[0]!) }))
+    priceChartData: candleData.map(candle => ({ price: candle[4]!, timestamp: new Date(candle[0]!) })),
+    volumeData: candleData.map(candle => ({ volume: candle[5]!, timestamp: new Date(candle[0]!) })),
   }
 }

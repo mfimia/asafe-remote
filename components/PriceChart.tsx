@@ -67,6 +67,27 @@ const PriceChart: FC<IPriceChartProps> = ({
         .attr("stroke", "none")
         .attr("opacity", 0);
 
+      svg.append("g")
+        .attr("transform", `translate(${marginLeft},0)`)
+        .call(d3.axisLeft(y).ticks(height / 40))
+        .call((g) => g.select(".domain").remove())
+        .call((g) => g.append("text")
+          .attr("x", -marginLeft)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start")
+          .text("↑ Price (USDT)"));
+
+      svg.append("g")
+        .attr("transform", `translate(0,${height - marginBottom})`)
+        .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+        .call((g) => g.append("text")
+          .attr("x", width)
+          .attr("y", marginBottom - 4)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end")
+          .text("Time →"));
+
       svg.append("rect")
         .attr("fill", "none")
         .attr("pointer-events", "all")
