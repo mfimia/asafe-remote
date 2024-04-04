@@ -43,9 +43,6 @@ const PriceChart: FC<IPriceChartProps> = ({
         .y(d => y(d.price))
         .curve(d3.curveMonotoneX);
 
-      const xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%m/%y") as any);
-      svg.append("g").attr("transform", `translate(0,${height - marginBottom})`).call(xAxis);
-
       const yAxis = d3.axisLeft(y);
       svg.append("g").attr("transform", `translate(${marginLeft},0)`).call(yAxis);
 
@@ -80,7 +77,7 @@ const PriceChart: FC<IPriceChartProps> = ({
 
       svg.append("g")
         .attr("transform", `translate(0,${height - marginBottom})`)
-        .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+        .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0).tickFormat(d3.timeFormat("%m/%y") as any))
         .call((g) => g.append("text")
           .attr("x", width)
           .attr("y", marginBottom - 4)

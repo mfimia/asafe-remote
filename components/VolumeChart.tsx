@@ -1,14 +1,16 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC, useRef } from 'react';
 import * as d3 from 'd3';
 import { IVolumeData } from '@/hooks/useCandleData';
-import { TradingPairSymbol } from '@/types';
+import { CandleChartInterval, TradingPairSymbol } from '@/types';
+import { useDeepCompareEffect } from '@/hooks/useDeepCompareEffect';
 
 interface IVolumeChartProps {
   data: IVolumeData[];
   symbol: TradingPairSymbol
+  timeframe: CandleChartInterval
 }
 
-const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
+const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol, timeframe }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const width = 960;
   const height = 500;
@@ -16,10 +18,20 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
   const marginRight = 20;
   const marginBottom = 50;
   const marginLeft = 60;
+  const transitionDuration = 750
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
+
     const sortedData = data.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-    d3.select(svgRef.current).selectAll("*").remove();
+
+    const bars = svg.selectAll("rect")
+      .data(sortedData, (d: any) => d.timestamp);
+
+    const t = d3.transition()
+      .duration(transitionDuration)
+      .ease(d3.easeLinear);
 
     const x = d3.scaleTime()
       .domain(d3.extent(data, d => d.timestamp) as [Date, Date])
@@ -29,11 +41,18 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
       .domain([0, d3.max(sortedData, d => d.volume) as number])
       .range([height - marginBottom, marginTop]);
 
-    d3.select(svgRef.current).selectAll("*").remove();
-    const svg = d3.select(svgRef.current);
-
     const yAxis = d3.axisLeft(y);
-    svg.append("g").attr("transform", `translate(${marginLeft},0)`).call(yAxis);
+    const xAxis = d3.axisBottom(x)
+
+    bars.enter().append("rect")
+      .attr("fill", "steelblue")
+      .attr("x", d => x(d.timestamp))
+      .attr("width", Math.max(0, (width - marginLeft - marginRight) / sortedData.length - 1))
+      .attr("y", height - marginBottom)
+      .attr("height", 0)
+      .transition(t)
+      .attr("y", d => y(d.volume))
+      .attr("height", d => height - marginBottom - y(d.volume));
 
     const tooltip = svg.append("text")
       .attr("opacity", 0)
@@ -46,18 +65,9 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
       .attr("stroke", "none")
       .attr("opacity", 0);
 
-    svg.selectAll("rect")
-      .data(sortedData)
-      .enter().append("rect")
-      .attr("fill", "steelblue")
-      .attr("x", d => x(d.timestamp))
-      .attr("y", d => y(d.volume))
-      .attr("width", Math.max(0, (width - marginLeft - marginRight) / sortedData.length - 1))
-      .attr("height", d => height - marginBottom - y(d.volume));
-
     svg.append("g")
       .attr("transform", `translate(${marginLeft},0)`)
-      .call(d3.axisLeft(y).ticks(height / 40))
+      .call(yAxis.ticks(height / 40))
       .call((g) => g.select(".domain").remove())
       .call((g) => g.append("text")
         .attr("x", -marginLeft)
@@ -68,7 +78,7 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
 
     svg.append("g")
       .attr("transform", `translate(0,${height - marginBottom})`)
-      .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0).tickFormat(d3.timeFormat("%m/%y") as any))
+      .call(xAxis.ticks(width / 80).tickSizeOuter(0).tickFormat(d3.timeFormat("%m/%y") as any))
       .call((g) => g.append("text")
         .attr("x", width)
         .attr("y", marginBottom - 4)
@@ -97,8 +107,7 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
           .attr("cx", x(closestDataPoint.timestamp))
           .attr("cy", y(closestDataPoint.volume));
       });
-
-  }, [data, symbol]);
+  }, [data]);
 
   return (
     <svg ref={svgRef} width={width} height={height} />

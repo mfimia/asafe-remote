@@ -32,7 +32,7 @@ const Dashboard: FC = () => {
         </select>
       </fieldset>
       <PriceChart data={priceChartData} />
-      <VolumeChart data={volumeData} symbol={symbol} />
+      <VolumeChart data={volumeData} symbol={symbol} timeframe={timeframe} />
     </section>
   )
 }
