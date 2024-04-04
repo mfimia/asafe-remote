@@ -1,30 +1,42 @@
 import * as d3 from "d3";
-import { FC, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { IPriceChartData } from "@/hooks/useCandleData";
 import useDeepCompareEffect from "@/hooks/useDeepCompareEffect";
 
 interface IPriceChartProps {
-  data?: IPriceChartData[]
-  symbol?: string;
-  timeframe?: string;
-  width?: number;
-  height?: number;
-  marginTop?: number;
-  marginRight?: number;
-  marginBottom?: number;
-  marginLeft?: number;
+  data: IPriceChartData[]
 }
 
 const PriceChart: FC<IPriceChartProps> = ({
-  data = [],
-  width = 640,
-  height = 400,
-  marginTop = 20,
-  marginRight = 20,
-  marginBottom = 50,
-  marginLeft = 50,
+  data
 }) => {
+  const [containerWidth, setContainerWidth] = useState(960); // Default width
+  const [containerHeight, setContainerHeight] = useState(500); // Default height
+  const containerRef = useRef<HTMLDivElement>(null); // For the container
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const marginTop = 20
+  const marginRight = 20
+  const marginBottom = 50
+  const marginLeft = 50
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+        setContainerHeight(containerRef.current.offsetHeight);
+      }
+    };
+
+    // Initial resize
+    handleResize();
+
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useDeepCompareEffect(() => {
     if (data.length > 0 && svgRef.current) {
@@ -33,11 +45,11 @@ const PriceChart: FC<IPriceChartProps> = ({
 
       const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.timestamp) as [Date, Date])
-        .range([marginLeft, width - marginRight]);
+        .range([marginLeft, containerWidth - marginRight]);
 
       const y = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.price) as number])
-        .range([height - marginBottom, marginTop])
+        .range([containerHeight - marginBottom, marginTop]);
 
       const line = d3.line<IPriceChartData>()
         .x(d => x(d.timestamp))
@@ -50,7 +62,7 @@ const PriceChart: FC<IPriceChartProps> = ({
       const path = svg.append("path")
         .datum(data)
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", "#bcc6f7")
         .attr("stroke-width", 1.5)
         .attr("d", line)
         .attr("stroke-dasharray", function () {
@@ -79,7 +91,7 @@ const PriceChart: FC<IPriceChartProps> = ({
 
       svg.append("g")
         .attr("transform", `translate(${marginLeft},0)`)
-        .call(d3.axisLeft(y).ticks(height / 40))
+        .call(d3.axisLeft(y).ticks(containerHeight / 40))
         .call((g) => g.select(".domain").remove())
         .call((g) => g.append("text")
           .attr("x", -marginLeft)
@@ -89,10 +101,10 @@ const PriceChart: FC<IPriceChartProps> = ({
           .text("↑ Price (USDT)"));
 
       svg.append("g")
-        .attr("transform", `translate(0,${height - marginBottom})`)
-        .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0).tickFormat(d3.timeFormat("%m/%y") as any))
+        .attr("transform", `translate(0,${containerHeight - marginBottom})`)
+        .call(d3.axisBottom(x).ticks(containerWidth / 80).tickSizeOuter(0).tickFormat(d3.timeFormat("%m/%y") as any))
         .call((g) => g.append("text")
-          .attr("x", width)
+          .attr("x", containerWidth)
           .attr("y", marginBottom - 4)
           .attr("fill", "currentColor")
           .attr("text-anchor", "end")
@@ -101,8 +113,8 @@ const PriceChart: FC<IPriceChartProps> = ({
       svg.append("rect")
         .attr("fill", "none")
         .attr("pointer-events", "all")
-        .attr("width", width)
-        .attr("height", height)
+        .attr("width", containerWidth)
+        .attr("height", containerHeight)
         .on("mouseover", () => { tooltip.attr("opacity", 1); highlightCircle.attr("opacity", 1); })
         .on("mouseout", () => { tooltip.attr("opacity", 0); highlightCircle.attr("opacity", 0); })
         .on("mousemove", (event) => {
@@ -120,13 +132,13 @@ const PriceChart: FC<IPriceChartProps> = ({
             .attr("cy", y(closestDataPoint.price));
         });
     }
-  }, [data, height, marginBottom, marginLeft, marginRight, marginTop, width]);
+  }, [data, containerHeight, containerWidth]);
 
-  if (!data.length) {
-    return <div>Loading data...</div>;
-  }
-
-  return <svg ref={svgRef} width={width} height={height} />;
+  return (
+    <div ref={containerRef} className='w-full h-full'>
+      <svg ref={svgRef} width={containerWidth} height={containerHeight} />
+    </div>
+  );
 };
 
 export default PriceChart;

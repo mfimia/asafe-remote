@@ -12,15 +12,24 @@ export interface IVolumeData {
   timestamp: Date
 }
 
-export const useCandleData = (symbol: TradingPairSymbol, timeframe: CandleChartInterval): { priceChartData: IPriceChartData[], volumeData: IVolumeData[] } => {
+export const useCandleData = (symbol: TradingPairSymbol, timeframe: CandleChartInterval): { priceChartData: IPriceChartData[], volumeData: IVolumeData[], loading: boolean } => {
   const [candleData, setCandleData] = useState<OHLCV[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchCandleData = async () => {
-      const binance = new ccxt.binance();
-      const ohlcv = await binance.fetchOHLCV(symbol, timeframe);
+      try {
+        setLoading(true)
 
-      setCandleData(ohlcv);
+        const binance = new ccxt.binance();
+        const ohlcv = await binance.fetchOHLCV(symbol, timeframe);
+
+        setCandleData(ohlcv);
+      } catch (error) {
+        alert('Error loading candle data')
+      } finally {
+        setLoading(false)
+      }
     };
 
     fetchCandleData();
@@ -29,5 +38,6 @@ export const useCandleData = (symbol: TradingPairSymbol, timeframe: CandleChartI
   return {
     priceChartData: candleData.map(candle => ({ price: candle[4]!, timestamp: new Date(candle[0]!) })),
     volumeData: candleData.map(candle => ({ volume: candle[5]!, timestamp: new Date(candle[0]!) })),
+    loading
   }
 }

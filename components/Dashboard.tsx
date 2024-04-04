@@ -1,38 +1,40 @@
+import 'tailwindcss/tailwind.css'
+
 import React, { FC, useState } from 'react'
 import PriceChart from './PriceChart'
 import { CandleChartInterval, TradingPairSymbol } from '@/types'
 import { useCandleData } from '@/hooks/useCandleData'
 import VolumeChart from './VolumeChart'
+import Loader from './Loader'
 
 const Dashboard: FC = () => {
   const [symbol, setSymbol] = useState<TradingPairSymbol>(TradingPairSymbol.BTCUSDT)
   const [timeframe, setTimeframe] = useState<CandleChartInterval>(CandleChartInterval.ONE_DAY)
 
-  const { priceChartData, volumeData } = useCandleData(symbol, timeframe)
-
-  /**
-   * @todo
-   * 1. Add loading spinner
-   * 2. Add more graphs, use this component to pass them symbol, timeframe
-   * 3. Add nice transitions/animations/interactions
-   */
+  const { priceChartData, volumeData, loading } = useCandleData(symbol, timeframe)
 
   return (
-    <section>
-      <fieldset>
+    <section className='flex flex-col gap-2 w-full p-4 m-2'>
+      <fieldset className='border w-fit p-1'>
         <label>Trading pair: </label>
         <select value={symbol} onChange={(e) => { setSymbol(e.target.value as TradingPairSymbol) }}>
           {Object.values(TradingPairSymbol).map(s => <option key={s} value={s}>{s}</option>)}
         </select>
       </fieldset>
-      <fieldset>
+      <fieldset className='border w-fit p-1'>
         <label>Timeframe: </label>
         <select value={timeframe} onChange={(e) => { setTimeframe(e.target.value as CandleChartInterval) }}>
           {Object.values(CandleChartInterval).map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </fieldset>
-      <PriceChart data={priceChartData} />
-      <VolumeChart data={volumeData} symbol={symbol} timeframe={timeframe} />
+      <div className='flex flex-col gap-4 lg:flex-row mx-auto lg:items-end mt-4'>
+        <div className='relative border w-[320px] h-[200px] sm:w-[480px] sm:h-[300px] lg:w-[600px] lg:h-[380px]'>
+          {loading ? <Loader /> : <PriceChart data={priceChartData} />}
+        </div>
+        <div className='relative border w-[320px] h-[180px] sm:w-[480px] sm:h-[270px] lg:w-[600px] lg:h-[350px]'>
+          {loading ? <Loader /> : <VolumeChart data={volumeData} symbol={symbol} />}
+        </div>
+      </div>
     </section>
   )
 }
