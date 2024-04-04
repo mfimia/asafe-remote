@@ -1,6 +1,7 @@
 import * as d3 from "d3";
-import { FC, useEffect, useRef } from "react";
+import { FC, useRef } from "react";
 import { IPriceChartData } from "@/hooks/useCandleData";
+import useDeepCompareEffect from "@/hooks/useDeepCompareEffect";
 
 interface IPriceChartProps {
   data?: IPriceChartData[]
@@ -25,7 +26,7 @@ const PriceChart: FC<IPriceChartProps> = ({
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
     if (data.length > 0 && svgRef.current) {
       const svg = d3.select(svgRef.current);
       svg.selectAll("*").remove();
@@ -46,12 +47,24 @@ const PriceChart: FC<IPriceChartProps> = ({
       const yAxis = d3.axisLeft(y);
       svg.append("g").attr("transform", `translate(${marginLeft},0)`).call(yAxis);
 
-      svg.append("path")
+      const path = svg.append("path")
         .datum(data)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
-        .attr("d", line);
+        .attr("d", line)
+        .attr("stroke-dasharray", function () {
+          const length = this.getTotalLength();
+          return `${length} ${length}`;
+        })
+        .attr("stroke-dashoffset", function () {
+          return this.getTotalLength();
+        });
+
+      path.transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
 
       const tooltip = svg.append("text")
         .attr("opacity", 0)

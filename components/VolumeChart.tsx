@@ -18,7 +18,7 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol, timeframe }) => {
   const marginRight = 20;
   const marginBottom = 50;
   const marginLeft = 60;
-  const transitionDuration = 750
+  const transitionDuration = 1500
 
   useDeepCompareEffect(() => {
     const svg = d3.select(svgRef.current);
