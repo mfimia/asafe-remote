@@ -1,8 +1,9 @@
 import * as d3 from "d3";
-import { FC, useEffect, useState, useRef } from "react";
-import ccxt from "ccxt";
+import { FC, useEffect, useRef } from "react";
+import { IPriceChartData } from "@/hooks/useCandleData";
 
 interface IPriceChartProps {
+  data?: IPriceChartData[]
   symbol?: string;
   timeframe?: string;
   width?: number;
@@ -13,14 +14,8 @@ interface IPriceChartProps {
   marginLeft?: number;
 }
 
-interface IPriceChartData {
-  price: number;
-  timestamp: Date;
-}
-
 const PriceChart: FC<IPriceChartProps> = ({
-  symbol = 'BTC/USDT',
-  timeframe = '1d',
+  data = [],
   width = 640,
   height = 400,
   marginTop = 20,
@@ -28,23 +23,7 @@ const PriceChart: FC<IPriceChartProps> = ({
   marginBottom = 50,
   marginLeft = 50,
 }) => {
-  const [data, setData] = useState<IPriceChartData[]>([]);
   const svgRef = useRef<SVGSVGElement>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const binance = new ccxt.binance();
-      const ohlcv = await binance.fetchOHLCV(symbol, timeframe);
-      const chartData: IPriceChartData[] = ohlcv.map((candle) => ({
-        timestamp: new Date(candle[0]!),
-        price: candle[4]!,
-      }));
-
-      setData(chartData);
-    };
-
-    fetchData();
-  }, [symbol, timeframe]);
 
   useEffect(() => {
     if (data.length > 0 && svgRef.current) {

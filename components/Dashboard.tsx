@@ -1,11 +1,35 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import PriceChart from './PriceChart'
+import { CandleChartInterval, TradingPairSymbol } from '@/types'
+import { useCandleData } from '@/hooks/useCandleData'
 
 const Dashboard: FC = () => {
+  const [symbol, setSymbol] = useState<TradingPairSymbol>(TradingPairSymbol.BTCUSDT)
+  const [timeframe, setTimeframe] = useState<CandleChartInterval>(CandleChartInterval.ONE_DAY)
+
+  const { priceChartData } = useCandleData(symbol, timeframe)
+
+  /**
+   * @todo
+   * 2. Add more graphs, use this component to pass them symbol, timeframe
+   * 3. Add nice transitions/animations/interactions
+   */
+
   return (
     <section>
-      <h1>This is the Dashboard</h1>
-      <PriceChart />
+      <fieldset>
+        <label>Trading pair: </label>
+        <select value={symbol} onChange={(e) => { setSymbol(e.target.value as TradingPairSymbol) }}>
+          {Object.values(TradingPairSymbol).map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </fieldset>
+      <fieldset>
+        <label>Timeframe: </label>
+        <select value={timeframe} onChange={(e) => { setTimeframe(e.target.value as CandleChartInterval) }}>
+          {Object.values(CandleChartInterval).map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </fieldset>
+      <PriceChart data={priceChartData} />
     </section>
   )
 }
