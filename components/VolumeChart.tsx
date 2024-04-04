@@ -1,8 +1,9 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useRef } from 'react';
 import * as d3 from 'd3';
 import { IVolumeData } from '@/hooks/useCandleData';
 import { TradingPairSymbol } from '@/types';
 import { useDeepCompareEffect } from '@/hooks/useDeepCompareEffect';
+import { useContainerResize } from '@/hooks/useContainerResize';
 
 interface IVolumeChartProps {
   data: IVolumeData[];
@@ -10,9 +11,6 @@ interface IVolumeChartProps {
 }
 
 const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
-  const [containerWidth, setContainerWidth] = useState(960); // Default width
-  const [containerHeight, setContainerHeight] = useState(500); // Default height
-  const containerRef = useRef<HTMLDivElement>(null); // For the container
   const svgRef = useRef<SVGSVGElement>(null);
 
   const marginTop = 20;
@@ -21,23 +19,7 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
   const marginLeft = 60;
   const transitionDuration = 1500
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-        setContainerHeight(containerRef.current.offsetHeight);
-      }
-    };
-
-    // Initial resize
-    handleResize();
-
-    // Listen for resize events
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const { containerWidth, containerHeight, containerRef } = useContainerResize(960, 500)
 
   useDeepCompareEffect(() => {
     const svg = d3.select(svgRef.current);

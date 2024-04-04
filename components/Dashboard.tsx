@@ -27,11 +27,11 @@ const Dashboard: FC = () => {
           {Object.values(CandleChartInterval).map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </fieldset>
-      <div className='flex flex-col gap-4 lg:flex-row mx-auto lg:items-end mt-4'>
-        <div className='relative border w-[320px] h-[200px] sm:w-[480px] sm:h-[300px] lg:w-[600px] lg:h-[380px]'>
+      <div className='flex flex-col gap-4 lg:flex-row mx-auto mt-4'>
+        <div className='relative border w-[320px] h-[200px] sm:w-[480px] sm:h-[300px] xl:w-[600px] xl:h-[380px]'>
           {loading ? <Loader /> : <PriceChart data={priceChartData} />}
         </div>
-        <div className='relative border w-[320px] h-[180px] sm:w-[480px] sm:h-[270px] lg:w-[600px] lg:h-[350px]'>
+        <div className='relative border w-[320px] h-[200px] sm:w-[480px] sm:h-[300px] xl:w-[600px] xl:h-[380px]'>
           {loading ? <Loader /> : <VolumeChart data={volumeData} symbol={symbol} />}
         </div>
       </div>

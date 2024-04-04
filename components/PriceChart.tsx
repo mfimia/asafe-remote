@@ -1,7 +1,8 @@
 import * as d3 from "d3";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useRef } from "react";
 import { IPriceChartData } from "@/hooks/useCandleData";
 import useDeepCompareEffect from "@/hooks/useDeepCompareEffect";
+import { useContainerResize } from "@/hooks/useContainerResize";
 
 interface IPriceChartProps {
   data: IPriceChartData[]
@@ -10,33 +11,15 @@ interface IPriceChartProps {
 const PriceChart: FC<IPriceChartProps> = ({
   data
 }) => {
-  const [containerWidth, setContainerWidth] = useState(960); // Default width
-  const [containerHeight, setContainerHeight] = useState(500); // Default height
-  const containerRef = useRef<HTMLDivElement>(null); // For the container
   const svgRef = useRef<SVGSVGElement>(null);
 
   const marginTop = 20
   const marginRight = 20
   const marginBottom = 50
   const marginLeft = 50
+  const transitionDuration = 2000
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-        setContainerHeight(containerRef.current.offsetHeight);
-      }
-    };
-
-    // Initial resize
-    handleResize();
-
-    // Listen for resize events
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const { containerWidth, containerHeight, containerRef } = useContainerResize(960, 500)
 
   useDeepCompareEffect(() => {
     if (data.length > 0 && svgRef.current) {
@@ -74,7 +57,7 @@ const PriceChart: FC<IPriceChartProps> = ({
         });
 
       path.transition()
-        .duration(2000)
+        .duration(transitionDuration)
         .ease(d3.easeLinear)
         .attr("stroke-dashoffset", 0);
 
