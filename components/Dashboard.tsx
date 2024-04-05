@@ -29,7 +29,7 @@ const Dashboard: FC = () => {
       </fieldset>
       <div className='flex flex-col gap-4 lg:flex-row mx-auto mt-4'>
         <div className='relative border w-[320px] h-[200px] sm:w-[480px] sm:h-[300px] xl:w-[600px] xl:h-[380px]'>
-          {loading ? <Loader /> : <PriceChart data={priceChartData} />}
+          {loading ? <Loader /> : <PriceChart data={priceChartData} symbol={symbol} />}
         </div>
         <div className='relative border w-[320px] h-[200px] sm:w-[480px] sm:h-[300px] xl:w-[600px] xl:h-[380px]'>
           {loading ? <Loader /> : <VolumeChart data={volumeData} symbol={symbol} />}

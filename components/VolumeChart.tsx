@@ -19,6 +19,8 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
   const marginLeft = 60;
   const transitionDuration = 1500
 
+  const currency = symbol.split('USDT')[0]
+
   const { containerWidth, containerHeight, containerRef } = useContainerResize(960, 500)
 
   useDeepCompareEffect(() => {
@@ -46,7 +48,7 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
     const xAxis = d3.axisBottom(x)
 
     bars.enter().append("rect")
-      .attr("fill", "#bcc6f7")
+      .attr("fill", "#3050ff")
       .attr("x", d => x(d.timestamp))
       .attr("width", Math.max(1, (containerWidth - marginLeft - marginRight) / sortedData.length - 1))
       .attr("y", containerHeight - marginBottom)
@@ -75,7 +77,7 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
         .attr("y", 10)
         .attr("fill", "currentColor")
         .attr("text-anchor", "start")
-        .text(`↑ Volume (${symbol.split('USDT')[0]})`));
+        .text(`↑ Volume (${currency})`));
 
     svg.append("g")
       .attr("transform", `translate(0,${containerHeight - marginBottom})`)
@@ -108,6 +110,15 @@ const VolumeChart: FC<IVolumeChartProps> = ({ data, symbol }) => {
           .attr("cx", x(closestDataPoint.timestamp))
           .attr("cy", y(closestDataPoint.volume));
       });
+
+    svg.append("text")
+      .attr("x", (marginLeft + (containerWidth - marginRight)) / 2)
+      .attr("y", marginTop)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#3050ff")
+      .attr("font-size", "20px")
+      .attr("font-weight", "bold")
+      .text(`${currency} Volume Data`);
   }, [data, containerWidth, containerHeight]);
 
   return (
