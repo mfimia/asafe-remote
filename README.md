@@ -1,34 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Asafe MFE - remote
 
-## Getting Started
+This is an MFE created with NextJS that is ready to use by a consumer application. It provides the code to display a dashboard that contains charts with crypto real data
 
-First, run the development server:
+## Project structure
 
-```bash
-npm run dev
-# or
-yarn dev
+- Built using NextJS v13 pages router (unfortunately there is no support for module federation on app router yet and v14 support is still flaky)
+- Uses `TypeScript` and `TailwindCSS`
+- Components
+  - `Dashboard` - Allows the user to select timeframe and crypto currency to display in charts
+  - `PriceChart` - Created with `D3.js`. It is a linear chart that displays price trend over a time period
+  - `VolumeChart` - Created with `D3.js`. Histogram that displays volume data over a time period
+  - `Loader` - Utility JSX to display loading state
+- Hooks
+- `useCandleData` - Fetches data from Binance api through `ccxt` and maps it for charts to consume
+- `useContainerResize` - Observes resize event and returns an Element's ref with container dimensions
+- `useDeepCompareEffect` - Extended version of [useEffect](https://react.dev/reference/react/useEffect) that performs a deep comparison in an array of elements using `lodash`
+
+## Amazing, right? Here is how to use it:
+
+### For development:
+
+1. Ensure you have node and npm installed on your machine:
+
+- [Node.js](https://nodejs.org/)
+- npm
+
+2. Clone the repository and install dependencies:
+
+```sh
+git clone https://github.com/mfimia/asafe-remote.git
+cd asafe-remote
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3001) with your browser to see the result.
+3. Spin up dev server
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```sh
+# To run the application in development mode:
+npm run dev
+# This will spin up the application on http://localhost:3001
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+4. Happy coding!
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```sh
+# To run all tests:
+npm run test
+```
 
-## Learn More
+4. Build for Production
 
-To learn more about Next.js, take a look at the following resources:
+```sh
+# To create a production-ready build:
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+The easiest way to deploy a Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## Deploy on Vercel
+Check out the documentation [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details. It should be just a few clicks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> :warning: Your deployed code will not really render anything too useful. It will simply serve static JS files for a MFE host to consume
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Made with ❤️ by [MF](https://github.com/mfimia)
